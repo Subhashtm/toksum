@@ -9,7 +9,7 @@ import csv
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-from .core import count_tokens, estimate_cost
+from .core import TokenCounter, estimate_cost
 from .exceptions import UnsupportedModelError, TokenizationError
 from .model_registry import get_supported_models, is_supported_model
 
@@ -32,6 +32,21 @@ def validate_text(text: Optional[str]) -> str:
     return text
 
 
+def count_tokens(text: str, model: str) -> int:
+    """
+    Count tokens in text for a specific model.
+    
+    Args:
+        text: Input text
+        model: Model name
+        
+    Returns:
+        Number of tokens
+    """
+    counter = TokenCounter(model)
+    return counter.count(text)
+
+
 def process_batch(
     directory: str,
     model: str,
@@ -51,8 +66,8 @@ def process_batch(
         output_tokens (bool): Estimate output token cost instead of input.
         output_format (str): One of 'text', 'json', or 'csv'.
     """
-    from .core import count_tokens, estimate_cost
-
+    # REMOVED DUPLICATE IMPORT: from .core import count_tokens, estimate_cost
+    
     results = []
     directory_path = Path(directory)
     if not directory_path.exists() or not directory_path.is_dir():
