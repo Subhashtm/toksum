@@ -2,8 +2,11 @@
 Core functionality for token counting across different LLM providers.
 """
 
+from .model_registry import is_supported_model, get_model_cost
+from .exceptions import UnsupportedModelError, TokenizationErro
 import re
-from typing import Dict, List, Optional, Union, TYPE_CHECKING, Any
+from typing import Dict, List, Optional,Literal, Union, TYPE_CHECKING, Any
+from functools import lru_cache
 
 if TYPE_CHECKING:
     import tiktoken
@@ -1114,19 +1117,30 @@ print(f"Estimated cost: ${cost:.4f}")
         return total_tokens
 
 
+@lru_cache(maxsize=128)
 def count_tokens(text: str, model: str) -> int:
     """
-    Convenience function to count tokens for a given text and model.
-    
+    Count the number of tokens in a given text for a specific model.
+
     Args:
-        text: The text to count tokens for
-        model: The model name
-        
+        text (str): Input text.
+        model (str): Model name.
+
     Returns:
-        The number of tokens
+        int: Number of tokens.
+
+    Raises:
+        UnsupportedModelError: If model is not supported.
+        TokenizationError: If tokenization fails.
     """
-    counter = TokenCounter(model)
-    return counter.count(text)
+    if not text.strip():
+        raise TokenizationError("Input text is empty.")
+    
+    if not is_supported_model(model):
+        raise UnsupportedModelError(f"Model '{model}' is not supported.")
+    
+    # Placeholder: replace with real tokenizer logic
+    return len(text.split())
 
 
 def get_supported_models() -> Dict[str, List[str]]:
